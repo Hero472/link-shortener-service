@@ -9,11 +9,12 @@ edition = "2021"
 actix-web = "4.0"           # Web framework
 actix-service = "2.0"       # Web framework   
 mongodb = "3.1"             # MongoDB driver
-serde = { version = "1.0", features = ["derive"] }  # Serialization and deserialization
-serde_json = "1.0"          # JSON support
-futures = "0.3"             # Asynchronous programming
+serde = { version = "1.0.213", features = ["derive"] }  # Serialization and deserialization
+serde_json = "1.0.132"          # JSON support
+futures = "0.3.31"             # Asynchronous programming
 dotenv = "0.15"             # Environment variables
-tokio = { version = "1", features = ["full"] } 
+tokio = { version = "1.41.0", features = ["full"] } 
 chrono = { version = "0.4", features = ["serde"] }
-bytes = "1.0"
-jsonwebtoken = "9.3" 
+bytes = "1.8.0"
+jsonwebtoken = "9.3"
+bcrypt = "0.15.1"

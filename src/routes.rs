@@ -20,13 +20,13 @@ pub fn protected_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/users")
             .route(web::get().to(get_users))
-            .wrap(JwtMiddleware) // Protect this route with JWT middleware
+            .wrap(JwtMiddleware)
     );
 
     cfg.service(
         web::resource("/users/{id}")
-            .route(web::put().to(update_user))
+            .route(web::patch().to(update_user))
             .route(web::delete().to(remove_user))
-            .wrap(JwtMiddleware) // Protect this route with JWT middleware
+            .wrap(JwtMiddleware)
     );
 }

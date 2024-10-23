@@ -23,6 +23,17 @@ pub fn generate_jwt(user_id: &str) -> JwtResult<String> {
     encode(&Header::default(), &claims, &EncodingKey::from_secret(secret_key.as_ref()))
 }
 
+pub fn generate_refresh_token(user_id: &str) -> JwtResult<String> {
+    let expiration: usize = 604800;
+    let claims: Claims = Claims {
+        sub: user_id.to_string(),
+        exp: (chrono::Utc::now().timestamp() as usize) + expiration,
+    };
+
+    let secret_key: &str = "your_refresh_secret_key";
+    encode(&Header::default(), &claims, &EncodingKey::from_secret(secret_key.as_ref()))
+}
+
 pub struct JwtMiddleware;
 
 impl<S, B> Transform<S, ServiceRequest> for JwtMiddleware
