@@ -6,15 +6,23 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.0"           # Web framework
-actix-service = "2.0"       # Web framework   
-mongodb = "3.1"             # MongoDB driver
-serde = { version = "1.0.213", features = ["derive"] }  # Serialization and deserialization
-serde_json = "1.0.132"          # JSON support
-futures = "0.3.31"             # Asynchronous programming
-dotenv = "0.15"             # Environment variables
-tokio = { version = "1.41.0", features = ["full"] } 
+actix-web = "4.0"
+actix-service = "2.0"
+mongodb = "3.1"
+serde = { version = "1.0.214", features = ["derive"] }
+serde_json = "1.0.132"
+futures = "0.3.31"
+dotenv = "0.15"
+tokio = { version = "1.41.1", features = ["full"] } 
 chrono = { version = "0.4", features = ["serde"] }
 bytes = "1.8.0"
 jsonwebtoken = "9.3"
 bcrypt = "0.15.1"
+lazy_static = "1.4"
+tonic = "0.12.3"
+prost = "0.11"
+
+[dev-dependencies]
+actix-rt = "2.10"
+actix-http-test = "3.2.0"
+mockall = "0.13.0" 
