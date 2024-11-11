@@ -1,0 +1,25 @@
+# Rust
+target/
+#Cargo.lock
+
+# Environment 
+.env
+
+# Documentation
+*.html
+
+# Git
+.git/
+.gitignore
+
+# IDEs
+.idea/
+*.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other
+*.swp
+*.swo
