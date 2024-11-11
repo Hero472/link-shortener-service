@@ -23,7 +23,7 @@ async fn main() -> mongodb::error::Result<()> {
             .app_data(web::Data::new(client.clone()))
             .configure(public_routes)
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await?;
     
