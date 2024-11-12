@@ -9,6 +9,10 @@ mod user;
 mod routes;
 mod jwt;
 
+mod proto {
+    tonic::include_proto!("user");
+}
+
 #[tokio::main]
 async fn main() -> mongodb::error::Result<()> {
     dotenv().ok();

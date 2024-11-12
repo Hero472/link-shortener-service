@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package user;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+enum Role {
+    ADMIN = 0;
+    USER = 1;
+}
+
+message User {
+    string id = 1;
+    string username = 2;
+    string email = 3;
+    string password = 4;
+    Role role = 5;
+    string access_token = 6; // optional in Rust
+    string refresh_token = 7; // optional in Rust
+    google.protobuf.Timestamp access_token_expires_at = 8; // optional in Rust
+    google.protobuf.Timestamp refresh_token_expires_at = 9; // optional in Rust
+}
+
+// UserLogin message for login requests
+message UserLogin {
+    string email = 1;
+    string password = 2;
+}
+
+// UpdateUser message for updating user details
+message UpdateUserRequest {
+    string id = 1; // Added id for user identification
+    optional string username = 2; // Added username for update (optional)
+    optional string email = 3; // Added email for update (optional)
+    optional string password = 4; // Added password for update (optional)
+}
+
+// Response message for user-related actions
+message UserResponse {
+    string message = 1;
+    User user = 2;
+}
+
+message RefreshRequest {
+    string id = 1;
+}
+
+message RemoveRequest {
+    string id = 1;
+}
+
+// Service definition for user operations
+service UserService {
+    // Register a new user
+    rpc RegisterUser(User) returns (UserResponse);
+
+    // Login an existing user
+    rpc LoginUser(UserLogin) returns (UserResponse);
+
+    // Get a list of all users
+    rpc GetUsers(google.protobuf.Empty) returns (stream User);  // Use Empty here
+
+    // Update user information
+    rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
+
+    // Refresh user tokens
+    rpc RefreshUser(RefreshRequest) returns (UserResponse);
+
+    // Remove a user
+    rpc RemoveUser(RemoveRequest) returns (UserResponse);
+}

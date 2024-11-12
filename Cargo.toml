@@ -1,5 +1,6 @@
 [package]
 name = "api"
+build = "build.rs"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,18 +10,22 @@ edition = "2021"
 actix-web = "4.0"
 actix-service = "2.0"
 mongodb = "3.1"
-serde = { version = "1.0.214", features = ["derive"] }
+serde = { version = "1.0.215", features = ["derive"] }
 serde_json = "1.0.132"
 futures = "0.3.31"
 dotenv = "0.15"
-tokio = { version = "1.41.1", features = ["full"] } 
+tokio = { version = "1", features = ["full"] } 
 chrono = { version = "0.4", features = ["serde"] }
 bytes = "1.8.0"
 jsonwebtoken = "9.3"
 bcrypt = "0.15.1"
 lazy_static = "1.4"
 tonic = "0.12.3"
-prost = "0.11"
+prost = "0.13.3"
+prost-types = "0.13.3"
+
+[build-dependencies]
+tonic-build = "0.12.3"
 
 [dev-dependencies]
 actix-rt = "2.10"

@@ -11,7 +11,6 @@ use serde_json::json;
 use crate::jwt::{generate_jwt, generate_refresh_token};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "lowercase")]
 pub enum Role {
     Admin,
     User
