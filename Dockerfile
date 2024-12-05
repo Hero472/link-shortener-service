@@ -11,7 +11,8 @@ WORKDIR /usr/src/app
 COPY . .
 
 # Build the application with release profile
-RUN cargo build --release
+
+RUN cargo clean && cargo build --release
 
 # Runtime stage
 FROM debian:bullseye-slim

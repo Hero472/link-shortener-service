@@ -22,28 +22,10 @@ message User {
     google.protobuf.Timestamp refresh_token_expires_at = 9; // optional in Rust
 }
 
-// UserLogin message for login requests
-message UserLogin {
-    string email = 1;
-    string password = 2;
-}
-
-// UpdateUser message for updating user details
-message UpdateUserRequest {
-    string id = 1; // Added id for user identification
-    optional string username = 2; // Added username for update (optional)
-    optional string email = 3; // Added email for update (optional)
-    optional string password = 4; // Added password for update (optional)
-}
-
 // Response message for user-related actions
 message UserResponse {
     string message = 1;
     User user = 2;
-}
-
-message RefreshRequest {
-    string id = 1;
 }
 
 message RemoveRequest {
@@ -52,21 +34,6 @@ message RemoveRequest {
 
 // Service definition for user operations
 service UserService {
-    // Register a new user
-    rpc RegisterUser(User) returns (UserResponse);
-
-    // Login an existing user
-    rpc LoginUser(UserLogin) returns (UserResponse);
-
-    // Get a list of all users
-    rpc GetUsers(google.protobuf.Empty) returns (stream User);  // Use Empty here
-
-    // Update user information
-    rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
-
-    // Refresh user tokens
-    rpc RefreshUser(RefreshRequest) returns (UserResponse);
-
     // Remove a user
     rpc RemoveUser(RemoveRequest) returns (UserResponse);
 }
