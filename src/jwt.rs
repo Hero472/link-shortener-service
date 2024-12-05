@@ -6,7 +6,8 @@ use std::env;
 //use actix_web::dev::ServiceRequest;
 //use futures::{future::{ok, LocalBoxFuture, Ready}, FutureExt};
 use serde::{Deserialize, Serialize};
-use jsonwebtoken::{decode, encode, errors::Result as JwtResult, Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{encode, errors::Result as JwtResult, EncodingKey, Header};
+//use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 
 use crate::user::Role;
 

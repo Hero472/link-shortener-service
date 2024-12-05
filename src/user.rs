@@ -7,14 +7,24 @@ use serde::{Deserialize, Serialize};
 use mongodb::{bson::{doc, oid::ObjectId, DateTime as BsonDateTime}, Client, Collection};
 use chrono::{DateTime, Duration, Utc};
 use serde_json::json;
+use tonic::Request;
+
+use crate::proto::user::{RemoveRequest, UserResponse};
+use crate::proto::user::user_service_client::UserServiceClient;
 
 use crate::jwt::{generate_jwt, generate_refresh_token};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "lowercase")]
 pub enum Role {
     Admin,
     User
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UserSend {
+    pub id: Option<ObjectId>,
+    pub username: String,
+    pub role: Role,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -143,11 +153,17 @@ pub async fn get_users(client: web::Data<Client>) -> impl Responder {
     let collection: Collection<User> = db.collection("users");
 
     let mut cursor: mongodb::Cursor<User> = collection.find(doc! {}).await.unwrap();
-    let mut users: Vec<User> = Vec::new();
+    let mut users: Vec<UserSend> = Vec::new();
 
     while let Some(result) = cursor.next().await {
         match result {
-            Ok(user) => users.push(user),
+            Ok(user) => {
+                users.push(UserSend {
+                    id: user.id,
+                    username: user.username,
+                    role: user.role,
+                });
+            }
             Err(e) => return HttpResponse::InternalServerError().body(format!("Error: {}", e))
         }
     }
@@ -245,26 +261,49 @@ pub async fn refresh_user(
     }
 }
 
-pub async fn remove_user(client: web::Data<Client>, user_id: web::Path<String>) -> impl Responder {
-    let db: mongodb::Database = client.database("shortener_link");
-    let collection: Collection<User> = db.collection("users");
-
-    let object_id: ObjectId = match ObjectId::parse_str(&user_id.into_inner()) {
-        Ok(id) => id,
-        Err(_) => return HttpResponse::BadRequest().body("Invalid user ID")
+pub async fn remove_user(
+    grpc_client: web::Data<UserServiceClient<tonic::transport::Channel>>, // gRPC client
+    user_id: web::Path<String>,
+) -> impl Responder {
+    let id: String = user_id.into_inner();
+    println!("entra");
+    // Validate and parse ObjectId
+    let object_id: String = match ObjectId::parse_str(&id) {
+        Ok(_) => id,
+        Err(_) => return HttpResponse::BadRequest().body("Invalid user ID"),
     };
 
-    let filter: mongodb::bson::Document = doc! {"_id": object_id };
+    // Create the gRPC RemoveRequest
+    let request: RemoveRequest = RemoveRequest {
+        id: object_id.clone(),
+    };
 
-    match collection.delete_one(filter).await {
-        Ok(remove_result) => {
-            if remove_result.deleted_count == 1 {
-                HttpResponse::Ok().body("User removed successfully")
+    // Clone the gRPC client to use it in the async context
+    let mut grpc_client: UserServiceClient<tonic::transport::Channel> = grpc_client.as_ref().clone();
+
+    match grpc_client.remove_user(Request::new(request)).await {
+        Ok(response) => {
+            let UserResponse { message, user } = response.into_inner();
+
+            let user_data = if let Some(user) = user {
+                Some(json!({
+                    "id": user.id,
+                    "role": user.role,
+                    "username": user.username,
+                }))
             } else {
-                HttpResponse::NotFound().body("User not found")
-            }
-        },
-        Err(e) => HttpResponse::InternalServerError().body(format!("Error: {}", e))
-    }
+                None
+            };
 
+            // Return the gRPC response to the client
+            HttpResponse::Ok().json(json!({
+                "message": message,
+                "user": user_data
+            }))
+        }
+        Err(err) => {
+            eprintln!("gRPC Error: {:?}", err);
+            HttpResponse::InternalServerError().body("Failed to remove user")
+        }
+    }
 }
