@@ -1,6 +1,5 @@
 use mongodb::{options::ClientOptions, Client};
 use routes::public_routes;
-use tonic::client;
 use std::env;
 use dotenv::dotenv;
 
@@ -9,12 +8,7 @@ use actix_web::{web, App, HttpServer};
 mod user;
 mod routes;
 mod jwt;
-
-use proto::User;
-
-mod proto {
-    tonic::include_proto!("user");
-}
+mod proto;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<mongodb::error::Error>> {
@@ -40,16 +34,17 @@ async fn main() -> Result<(), Box<mongodb::error::Error>> {
         }
     };
 
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(client.clone()))
             .configure(public_routes)
     })
     .bind("0.0.0.0:8080")
-    .expect("Failed to bind to 0.0.0.0:8080 - check if the port is already in use or if permissions are insufficient")
-    .run()
-    .await
-    .expect("HTTP server encountered an error while running");
+    .expect("Failed to bind to 0.0.0.0:8080 - check if the port is already in use or if permissions are insufficient");
+
+    println!("Server is running at http://0.0.0.0:8080");
+
+    server.run().await.expect("HTTP server encountered an error while running");
     
     Ok(())
 }

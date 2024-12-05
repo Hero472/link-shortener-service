@@ -153,11 +153,17 @@ pub async fn get_users(client: web::Data<Client>) -> impl Responder {
     let collection: Collection<User> = db.collection("users");
 
     let mut cursor: mongodb::Cursor<User> = collection.find(doc! {}).await.unwrap();
-    let mut users: Vec<User> = Vec::new();
+    let mut users: Vec<UserSend> = Vec::new();
 
     while let Some(result) = cursor.next().await {
         match result {
-            Ok(user) => users.push(user),
+            Ok(user) => {
+                users.push(UserSend {
+                    id: user.id,
+                    username: user.username,
+                    role: user.role,
+                });
+            }
             Err(e) => return HttpResponse::InternalServerError().body(format!("Error: {}", e))
         }
     }
@@ -259,21 +265,21 @@ pub async fn remove_user(
     grpc_client: web::Data<UserServiceClient<tonic::transport::Channel>>, // gRPC client
     user_id: web::Path<String>,
 ) -> impl Responder {
-    let id = user_id.into_inner();
-
+    let id: String = user_id.into_inner();
+    println!("entra");
     // Validate and parse ObjectId
-    let object_id = match ObjectId::parse_str(&id) {
+    let object_id: String = match ObjectId::parse_str(&id) {
         Ok(_) => id,
         Err(_) => return HttpResponse::BadRequest().body("Invalid user ID"),
     };
 
     // Create the gRPC RemoveRequest
-    let request = RemoveRequest {
+    let request: RemoveRequest = RemoveRequest {
         id: object_id.clone(),
     };
 
     // Clone the gRPC client to use it in the async context
-    let mut grpc_client = grpc_client.as_ref().clone();
+    let mut grpc_client: UserServiceClient<tonic::transport::Channel> = grpc_client.as_ref().clone();
 
     match grpc_client.remove_user(Request::new(request)).await {
         Ok(response) => {

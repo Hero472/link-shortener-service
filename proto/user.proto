@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 package user;
 
 import "google/protobuf/timestamp.proto";
